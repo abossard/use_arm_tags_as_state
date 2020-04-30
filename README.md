@@ -1,0 +1,1 @@
+az deployment group create -g anbossar-test-kv --template-file ./kv.json --parameters objectId=`az ad signed-in-user  show -o table --query 'objectId' | tail -1`  --confirm-with-what-if
