@@ -12,10 +12,7 @@
   },
   "variables": {
     "Default-KV-Keep-Policies": {
-      "type": "object",
-      "defaultValue": {
-        "KV-Keep-Policies-NO": false
-      }
+      "KV-Keep-Policies": false
     }
   },
   "resources": [
@@ -29,13 +26,9 @@
       "type": "array",
       "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2019-09-01', 'Full').properties.accessPolicies]"
     },
-    "conditionDebug": {
-      "type": "string",
-      "value": "[resourceGroup().tags['KV-Keep-Policies']]"
-    },
-    "conditionDebug2": {
-      "type": "string",
-      "value": "[union(variables('Default-KV-Keep-Policies'), resourceGroup().tags['KV-Keep-Policies-NO'])]"
+    "keepPolicies": {
+      "type": "bool",
+      "value": "[bool(union(variables('Default-KV-Keep-Policies'), resourceGroup().tags)['KV-Keep-Policies'])]"
     }
   }
 }

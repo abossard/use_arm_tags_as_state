@@ -2,6 +2,10 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "KVKeepPolicies": {
+      "defaultValue": true,
+      "type": "bool"
+    },
     "keyVaultName": {
       "type": "string",
       "defaultValue": "[concat('kv-', uniqueString(resourceGroup().id))]",
@@ -50,21 +54,6 @@
       }
     }
   },
-  "variables": {
-    "Default-KV-Keep-Policies": {
-      "KV-Keep-Policies": false
-    },
-    "keepPolicies": "[bool(union(variables('Default-KV-Keep-Policies'), resourceGroup().tags)['KV-Keep-Policies'])]",
-    "defaultAccessPolicies": [
-          {
-            "tenantId": "[parameters('tenantId')]",
-            "objectId": "[parameters('objectId')]",
-            "permissions": {
-              "keys": "[parameters('keysPermissions')]"
-            }
-          }
-        ]
-  },
   "resources": [
     {
       "type": "Microsoft.Resources/tags",
@@ -74,7 +63,7 @@
       ],
       "properties": {
         "tags": {
-          "KV-Keep-Policies": "true"
+          "KV-Keep-Policies": "[bool(parameters('KVKeepPolicies'))]"
         }
       }
     },
@@ -83,11 +72,9 @@
       "name": "[parameters('keyVaultName')]",
       "apiVersion": "2019-09-01",
       "location": "[parameters('location')]",
-      "dependsOn": ["default"],
       "properties": {
-        "enableSoftDelete": false,
+        "createMode": "recover",
         "tenantId": "[parameters('tenantId')]",
-        "accessPolicies": "[if(variables('keepPolicies'), reference(parameters('keyVaultName')).properties.accessPolicies, variables('defaultAccessPolicies'))]",
         "sku": {
           "name": "[parameters('skuName')]",
           "family": "A"
