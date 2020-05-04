@@ -23,21 +23,6 @@
         "description": "Specifies the tenant ID of the subscription. Get using Get-AzureRmSubscription cmdlet or Get Subscription API."
       }
     },
-    "objectId": {
-      "type": "string",
-      "metadata": {
-        "description": "Specifies the object Id of the AD user. Get using Get-AzureRmADUser or Get-AzureRmADServicePrincipal cmdlets."
-      }
-    },
-    "keysPermissions": {
-      "type": "array",
-      "defaultValue": [
-        "list"
-      ],
-      "metadata": {
-        "description": "Permissions to keys in the vault. Valid values are: all, create, import, update, get, list, delete, backup, restore, encrypt, decrypt, wrapkey, unwrapkey, sign, and verify."
-      }
-    },
     "skuName": {
       "type": "string",
       "defaultValue": "Standard",
@@ -54,16 +39,7 @@
     "Default-KV-Keep-Policies": {
       "KV-Keep-Policies": false
     },
-    "keepPolicies": "[bool(union(variables('Default-KV-Keep-Policies'), resourceGroup().tags)['KV-Keep-Policies'])]",
-    "defaultAccessPolicies": [
-          {
-            "tenantId": "[parameters('tenantId')]",
-            "objectId": "[parameters('objectId')]",
-            "permissions": {
-              "keys": "[parameters('keysPermissions')]"
-            }
-          }
-        ]
+    "keepPolicies": "[bool(union(variables('Default-KV-Keep-Policies'), resourceGroup().tags)['KV-Keep-Policies'])]"
   },
   "resources": [
     {

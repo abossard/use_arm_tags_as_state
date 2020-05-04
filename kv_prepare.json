@@ -8,12 +8,44 @@
       "metadata": {
         "description": ""
       }
+    },
+    "objectId": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the object Id of the AD user. Get using Get-AzureRmADUser or Get-AzureRmADServicePrincipal cmdlets."
+      }
+    },
+     "tenantId": {
+      "type": "string",
+      "defaultValue": "[subscription().tenantId]",
+      "metadata": {
+        "description": "Specifies the tenant ID of the subscription. Get using Get-AzureRmSubscription cmdlet or Get Subscription API."
+      }
+    },
+    "keysPermissions": {
+      "type": "array",
+      "defaultValue": [
+        "list"
+      ],
+      "metadata": {
+        "description": "Permissions to keys in the vault. Valid values are: all, create, import, update, get, list, delete, backup, restore, encrypt, decrypt, wrapkey, unwrapkey, sign, and verify."
+      }
     }
   },
   "variables": {
     "Default-KV-Keep-Policies": {
       "KV-Keep-Policies": false
-    }
+    },
+    "keepPolicies": "[bool(union(variables('Default-KV-Keep-Policies'), resourceGroup().tags)['KV-Keep-Policies'])]",
+    "defaultAccessPolicies": [
+          {
+            "tenantId": "[parameters('tenantId')]",
+            "objectId": "[parameters('objectId')]",
+            "permissions": {
+              "keys": "[parameters('keysPermissions')]"
+            }
+          }
+        ]
   },
   "resources": [
   ],
@@ -24,11 +56,8 @@
     },
     "accessPolicies": {
       "type": "array",
-      "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2019-09-01', 'Full').properties.accessPolicies]"
-    },
-    "keepPolicies": {
-      "type": "bool",
-      "value": "[bool(union(variables('Default-KV-Keep-Policies'), resourceGroup().tags)['KV-Keep-Policies'])]"
+      // "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2019-09-01', 'Full').properties.accessPolicies]",
+      "value": "[if(variables('keepPolicies'), reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2019-09-01', 'Full'), variables('defaultAccessPolicies'))]"
     }
   }
 }
