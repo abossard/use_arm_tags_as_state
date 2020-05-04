@@ -92,6 +92,36 @@
           "variables": {
           },
           "resources": [
+            {
+              "type": "Microsoft.Resources/tags",
+              "name": "default",
+              "apiVersion": "2019-10-01",
+              "dependsOn": [
+              ],
+              "properties": {
+                "tags": {
+                  "KV-Keep-Policies": "true"
+                }
+              }
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults",
+              "name": "[parameters('keyVaultName')]",
+              "apiVersion": "2019-09-01",
+              "location": "[resourceGroup().location]",
+              "dependsOn": [
+                "default"
+              ],
+              "properties": {
+                "enableSoftDelete": false,
+                "tenantId": "[parameters('tenantId')]",
+                "accessPolicies": "[reference('prepareTemplate').outputs.accessPolicies.value]",
+                "sku": {
+                  "name": "Standard",
+                  "family": "A"
+                }
+              }
+            }
           ],
           "outputs": {
           }
@@ -100,13 +130,9 @@
     }
   ],
   "outputs": {
-    "keyVaultName": {
-      "type": "string",
-      "value": "[reference('prepareTemplate').outputs.keyVaultName.value]"
-    },
     "accessPolicies": {
       "type": "array",
-      "value": "[reference('prepareTemplate').outputs.accessPolicies.value]"
+      "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2019-09-01', 'Full').properties.accessPolicies]"
     }
   }
 }
