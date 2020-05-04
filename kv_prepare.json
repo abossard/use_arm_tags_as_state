@@ -15,7 +15,7 @@
         "description": "Specifies the object Id of the AD user. Get using Get-AzureRmADUser or Get-AzureRmADServicePrincipal cmdlets."
       }
     },
-     "tenantId": {
+    "tenantId": {
       "type": "string",
       "defaultValue": "[subscription().tenantId]",
       "metadata": {
@@ -38,14 +38,14 @@
     },
     "keepPolicies": "[bool(union(variables('Default-KV-Keep-Policies'), resourceGroup().tags)['KV-Keep-Policies'])]",
     "defaultAccessPolicies": [
-          {
-            "tenantId": "[parameters('tenantId')]",
-            "objectId": "[parameters('objectId')]",
-            "permissions": {
-              "keys": "[parameters('keysPermissions')]"
-            }
-          }
-        ]
+      {
+        "tenantId": "[parameters('tenantId')]",
+        "objectId": "[parameters('objectId')]",
+        "permissions": {
+          "keys": "[parameters('keysPermissions')]"
+        }
+      }
+    ]
   },
   "resources": [
   ],
@@ -56,8 +56,7 @@
     },
     "accessPolicies": {
       "type": "array",
-      // "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2019-09-01', 'Full').properties.accessPolicies]",
-      "value": "[if(variables('keepPolicies'), reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2019-09-01', 'Full'), variables('defaultAccessPolicies'))]"
+      "value": "[if(variables('keepPolicies'), reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2019-09-01', 'Full').properties.accessPolicies, variables('defaultAccessPolicies'))]"
     }
   }
 }
