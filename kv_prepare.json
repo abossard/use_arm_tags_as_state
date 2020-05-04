@@ -48,15 +48,65 @@
     ]
   },
   "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "prepareTemplate",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "outer"
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "variables": {
+          },
+          "resources": [
+          ],
+          "outputs": {
+            "keyVaultName": {
+              "type": "string",
+              "value": "[parameters('keyVaultName')]"
+            },
+            "accessPolicies": {
+              "type": "array",
+              "value": "[if(variables('keepPolicies'), reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2019-09-01', 'Full').properties.accessPolicies, variables('defaultAccessPolicies'))]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "kvTemplate",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "outer"
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "variables": {
+          },
+          "resources": [
+          ],
+          "outputs": {
+          }
+        }
+      }
+    }
   ],
   "outputs": {
     "keyVaultName": {
       "type": "string",
-      "value": "[parameters('keyVaultName')]"
+      "value": "[reference('prepareTemplate').outputs.keyVaultName.value]"
     },
     "accessPolicies": {
       "type": "array",
-      "value": "[if(variables('keepPolicies'), reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2019-09-01', 'Full').properties.accessPolicies, variables('defaultAccessPolicies'))]"
+      "value": "[reference('prepareTemplate').outputs.accessPolicies.value]"
     }
   }
 }
