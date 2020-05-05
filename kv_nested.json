@@ -4,7 +4,7 @@
   "parameters": {
     "keyVaultName": {
       "type": "string",
-      "defaultValue": "[concat('kv2-', uniqueString(resourceGroup().id))]",
+      "defaultValue": "[concat('kv-', uniqueString(resourceGroup().id))]",
       "metadata": {
         "description": ""
       }
@@ -27,6 +27,7 @@
       "defaultValue": [
         "list"
       ],
+
       "metadata": {
         "description": "Permissions to keys in the vault. Valid values are: all, create, import, update, get, list, delete, backup, restore, encrypt, decrypt, wrapkey, unwrapkey, sign, and verify."
       }
@@ -71,7 +72,7 @@
             },
             "accessPolicies": {
               "type": "array",
-              "value": "[if(variables('keepPolicies'), reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2019-09-01', 'Full').properties.accessPolicies, variables('defaultAccessPolicies'))]"
+              "value": "[if(variables('keepPolicies'), union(reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2019-09-01', 'Full').properties.accessPolicies, variables('defaultAccessPolicies')), variables('defaultAccessPolicies'))]"
             }
           }
         }
@@ -81,6 +82,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
       "name": "kvTemplate",
+      "dependsOn": ["prepareTemplate"],
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "outer"
@@ -97,6 +99,7 @@
               "name": "default",
               "apiVersion": "2019-10-01",
               "dependsOn": [
+                "[parameters('keyVaultName')]"
               ],
               "properties": {
                 "tags": {
@@ -109,9 +112,7 @@
               "name": "[parameters('keyVaultName')]",
               "apiVersion": "2019-09-01",
               "location": "[resourceGroup().location]",
-              "dependsOn": [
-                "default"
-              ],
+              "dependsOn": [],
               "properties": {
                 "enableSoftDelete": false,
                 "tenantId": "[parameters('tenantId')]",
@@ -132,7 +133,7 @@
   "outputs": {
     "accessPolicies": {
       "type": "array",
-      "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2019-09-01', 'Full').properties.accessPolicies]"
+      "value": "[reference('prepareTemplate').outputs.accessPolicies.value]"
     }
   }
 }
